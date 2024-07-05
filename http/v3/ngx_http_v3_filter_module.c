@@ -161,17 +161,22 @@ ngx_http_v3_header_filter(ngx_http_request_t *r)
     if (r->headers_out.server == NULL) {
         if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
             n = sizeof(NGINX_VER) - 1;
+            len += ngx_http_v3_encode_field_lri(NULL, 0,
+                                                NGX_HTTP_V3_HEADER_SERVER,
+                                                NULL, n);
 
         } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
             n = sizeof(NGINX_VER_BUILD) - 1;
+            len += ngx_http_v3_encode_field_lri(NULL, 0,
+                                                NGX_HTTP_V3_HEADER_SERVER,
+                                                NULL, n);
 
-        } else {
+        } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_OFF) {
             n = sizeof("nginx") - 1;
+            len += ngx_http_v3_encode_field_lri(NULL, 0,
+                                                NGX_HTTP_V3_HEADER_SERVER,
+                                                NULL, n);
         }
-
-        len += ngx_http_v3_encode_field_lri(NULL, 0,
-                                            NGX_HTTP_V3_HEADER_SERVER,
-                                            NULL, n);
     }
 
     if (r->headers_out.date == NULL) {
@@ -343,22 +348,34 @@ ngx_http_v3_header_filter(ngx_http_request_t *r)
         if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
             p = (u_char *) NGINX_VER;
             n = sizeof(NGINX_VER) - 1;
+            ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
+                        "http3 output header: \"server: %*s\"", n, p);
+
+            b->last = (u_char *) ngx_http_v3_encode_field_lri(b->last, 0,
+                                                        NGX_HTTP_V3_HEADER_SERVER,
+                                                        p, n);
 
         } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
             p = (u_char *) NGINX_VER_BUILD;
             n = sizeof(NGINX_VER_BUILD) - 1;
+            ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
+                        "http3 output header: \"server: %*s\"", n, p);
 
-        } else {
+            b->last = (u_char *) ngx_http_v3_encode_field_lri(b->last, 0,
+                                                        NGX_HTTP_V3_HEADER_SERVER,
+                                                        p, n);
+
+        } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_OFF) {
             p = (u_char *) "nginx";
             n = sizeof("nginx") - 1;
+            ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
+                        "http3 output header: \"server: %*s\"", n, p);
+
+            b->last = (u_char *) ngx_http_v3_encode_field_lri(b->last, 0,
+                                                        NGX_HTTP_V3_HEADER_SERVER,
+                                                        p, n);
+
         }
-
-        ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-                       "http3 output header: \"server: %*s\"", n, p);
-
-        b->last = (u_char *) ngx_http_v3_encode_field_lri(b->last, 0,
-                                                     NGX_HTTP_V3_HEADER_SERVER,
-                                                     p, n);
     }
 
     if (r->headers_out.date == NULL) {

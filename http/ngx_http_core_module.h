@@ -58,6 +58,7 @@ typedef struct ngx_thread_pool_s  ngx_thread_pool_t;
 #define NGX_HTTP_SERVER_TOKENS_OFF      0
 #define NGX_HTTP_SERVER_TOKENS_ON       1
 #define NGX_HTTP_SERVER_TOKENS_BUILD    2
+#define NGX_HTTP_SERVER_TOKENS_HIDE     3
 
 
 typedef struct ngx_http_location_tree_node_s  ngx_http_location_tree_node_t;
