@@ -52,3 +52,7 @@ http {
 当`server_tokens  hide;`时
 
 ![这是一张示例图片](https://github.com/bytesharky/nginx/blob/nginx-1.26/images/1720182890661.jpg?raw=true)
+
+#### 具体修改内容参见
+
+[Nginx隐藏Server头](https://github.com/bytesharky/nginx/commit/62ed99373adc17fd8385dad117b256a835bf37c5)
