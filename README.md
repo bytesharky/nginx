@@ -1,6 +1,10 @@
-### 注意：此Nginx非官方版，此版可隐藏Server头。
+# sharky nginx
 
-#### 在官方的Nginx中，可在配置文件中使用如下配置，来隐藏Server头的Nginx版本信息。
+##
+
+### 注意：此Nginx非官方版，此版可隐藏Server头
+
+#### 在官方的Nginx中，可在配置文件中使用如下配置，来隐藏Server头的Nginx版本信息
 
 ``` nginx
 http {
@@ -9,9 +13,12 @@ http {
   ...
 }
 ```
-#### 但是Server字段依然显示正在使用的是Nginx服务器。
 
-#### 然而我并不想显示包括Nginx的一些服务器相关信息，所以我修改了Nginx的代码。
+#### 但是Server字段依然显示正在使用的是Nginx服务器
+
+#### 然而我并不想显示包括Nginx的一些服务器相关信息，所以我修改了Nginx的代码，使其可以隐藏甚至修改Server头
+
+### 使用示例
 
 ``` nginx
 http {
@@ -43,12 +50,56 @@ http {
 
 当`server_tokens  on;`或未配置时
 
-![这是一张示例图片](https://github.com/bytesharky/nginx/blob/nginx-1.26/images/1720182600960.jpg?raw=true)
+![这是一张示例图片](/images/1720182600960.jpg?raw=true)
 
 当`server_tokens  off;`时
 
-![这是一张示例图片](https://github.com/bytesharky/nginx/blob/nginx-1.26/images/1720182656168.jpg?raw=true)
+![这是一张示例图片](/images/1720182656168.jpg?raw=true)
 
 当`server_tokens  hide;`时
 
-![这是一张示例图片](https://github.com/bytesharky/nginx/blob/nginx-1.26/images/1720182890661.jpg?raw=true)
+![这是一张示例图片](/images/1720182890661.jpg?raw=true)
+
+#### 修改Server头的实现
+
+```nginx
+http {
+    ...
+    # 隐藏原有的Server头
+    server_tokens  hide;
+
+    # 添加自定义的Server头
+    add_header     "Server"  "SharkyServer";
+    ...
+}
+```
+
+#### 具体修改内容参见
+
+[Nginx隐藏Server头](../../commit/6ba6f6d39541d69442a1297be1e7f309f9d74d63)
+
+#### Docker构建
+
+```bash
+# 1. 克隆镜像(仅docker分支)
+git clone --branch docker --single-branch --depth 1 https://github.com/bytesharky/nginx.git && cd nginx
+
+# 2. 构建镜像
+docker build -t sharky-nginx:latest .
+
+# 3. 启动容器
+ROOT_PATH="/data/docker/nginx"
+docker run -d \
+  -p 80:80 \
+  -p 443:443/tcp \
+  -p 443:443/udp \
+  -e TZ=Asia/Shanghai \
+  --name sharky-nginx \
+  -v $ROOT_PATH/conf:/etc/nginx \
+  -v $ROOT_PATH/logs:/var/log/nginx \
+  sharky-nginx:latest
+
+
+# 或者拉取我构建好的镜像
+docker pull ccr.ccs.tencentyun.com/sharky/sharky-nginx
+```
