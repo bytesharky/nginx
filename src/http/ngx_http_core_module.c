@@ -125,6 +125,7 @@ static ngx_conf_enum_t  ngx_http_core_server_tokens[] = {
     { ngx_string("off"), NGX_HTTP_SERVER_TOKENS_OFF },
     { ngx_string("on"), NGX_HTTP_SERVER_TOKENS_ON },
     { ngx_string("build"), NGX_HTTP_SERVER_TOKENS_BUILD },
+    { ngx_string("hide"), NGX_HTTP_SERVER_TOKENS_HIDE },
     { ngx_null_string, 0 }
 };
 
