@@ -36,8 +36,13 @@ ARG BUILD_DATE
 RUN echo "Build date: ${BUILD_DATE}" && \
     rm -rf sharky-nginx 2>/dev/null || true
 
-# RUN  git clone --depth 1 https://gitee.com/bytesharky/nginx sharky-nginx
+# 指定版本
+# RUN git clone --depth 1 --branch nginx-1.26 https://github.com/bytesharky/nginx sharky-nginx
+# 最新版本
 RUN git clone --depth 1 https://github.com/bytesharky/nginx sharky-nginx
+
+# 国内可以使用
+# RUN git clone --depth 1 https://gitee.com/bytesharky/nginx sharky-nginx
 
 WORKDIR /usr/src/sharky-nginx
 

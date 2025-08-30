@@ -8,20 +8,33 @@ fi
 
 cd "$(dirname "$0")" || exit 1
 
+# ===== Variables =====
 TAG=$1
 IMAGE_NAME=sharky-nginx
 REGISTRY=ccr.ccs.tencentyun.com/sharky
+
+echo "是否为最新版本:"
+echo "1) 是(Yes)"
+echo "2) 否(No)"
+read -p "Enter choice (1/2, default 1): " IS_LATEST
+IS_LATEST=${IS_LATEST:-1}
 
 echo ">>> 构建镜像: $IMAGE_NAME:$TAG"
 docker build --build-arg BUILD_DATE="$(date)" -t $IMAGE_NAME:$TAG .
 
 echo ">>> 打标签..."
-docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest
 docker tag $IMAGE_NAME:$TAG $REGISTRY/$IMAGE_NAME:$TAG
-docker tag $IMAGE_NAME:$TAG $REGISTRY/$IMAGE_NAME:latest
+
+if [ "$IS_LATEST" = "1" ]; then
+  docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest
+  docker tag $IMAGE_NAME:$TAG $REGISTRY/$IMAGE_NAME:latest
+fi
 
 echo ">>> 推送镜像..."
 docker push $REGISTRY/$IMAGE_NAME:$TAG
-docker push $REGISTRY/$IMAGE_NAME:latest
+
+if [ "$IS_LATEST" = "1" ]; then
+  docker push $REGISTRY/$IMAGE_NAME:latest
+fi
 
 echo ">>> 完成"
