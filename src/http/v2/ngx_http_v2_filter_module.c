@@ -115,10 +115,11 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
     ngx_http_core_srv_conf_t  *cscf;
     u_char                     addr[NGX_SOCKADDR_STRLEN];
 
-    static const u_char nginx[5] = "\x84\xaa\x63\x55\xe7";
+    static const u_char nginx[5] = { 0x84, 0xaa, 0x63, 0x55, 0xe7 };
 #if (NGX_HTTP_GZIP)
-    static const u_char accept_encoding[12] =
-        "\x8b\x84\x84\x2d\x69\x5b\x05\x44\x3c\x86\xaa\x6f";
+    static const u_char accept_encoding[12] = {
+        0x8b, 0x84, 0x84, 0x2d, 0x69, 0x5b, 0x05, 0x44, 0x3c, 0x86, 0xaa, 0x6f
+    };
 #endif
 
     static size_t nginx_ver_len = ngx_http_v2_literal_size(NGINX_VER);
@@ -225,7 +226,7 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
         } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
             len += 1 + nginx_ver_build_len;
 
-        } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_OFF)  {
+        } else {
             len += 1 + sizeof(nginx);
         }
     }
@@ -425,19 +426,20 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
 
         if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
             ngx_log_debug1(NGX_LOG_DEBUG_HTTP, fc->log, 0,
-                        "http2 output header: \"server: %s\"",
-                        NGINX_VER);
+                           "http2 output header: \"server: %s\"",
+                           NGINX_VER);
 
         } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
             ngx_log_debug1(NGX_LOG_DEBUG_HTTP, fc->log, 0,
-                        "http2 output header: \"server: %s\"",
-                        NGINX_VER_BUILD);
+                           "http2 output header: \"server: %s\"",
+                           NGINX_VER_BUILD);
 
-        } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_OFF) {
+        } else {
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, fc->log, 0,
-                        "http2 output header: \"server: nginx\"");
+                           "http2 output header: \"server: nginx\"");
         }
 
+        *pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
 
         if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
             if (nginx_ver[0] == '\0') {
@@ -446,7 +448,6 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
                 nginx_ver_len = p - nginx_ver;
             }
 
-            *pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
             pos = ngx_cpymem(pos, nginx_ver, nginx_ver_len);
 
         } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
@@ -457,11 +458,9 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
                 nginx_ver_build_len = p - nginx_ver_build;
             }
 
-            *pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
             pos = ngx_cpymem(pos, nginx_ver_build, nginx_ver_build_len);
 
-        } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_OFF) {
-            *pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
+        } else {
             pos = ngx_cpymem(pos, nginx, sizeof(nginx));
         }
     }
