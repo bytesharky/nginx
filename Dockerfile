@@ -1,7 +1,7 @@
 # =======================
 # Stage 1: Base builder
 # =======================
-FROM alpine:3.20 AS base-builder
+FROM alpine:3.22 AS base-builder
 
 # 安装编译依赖
 RUN apk add --no-cache \
@@ -104,7 +104,7 @@ RUN chmod +x ./configure && \
 # =======================
 # Stage 3: Minimal runtime
 # =======================
-FROM alpine:3.20
+FROM alpine:3.22
 
 ARG BUILD_DATE
 LABEL build.date="${BUILD_DATE}"
