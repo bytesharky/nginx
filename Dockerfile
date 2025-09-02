@@ -102,6 +102,16 @@ RUN chmod +x ./configure && \
     mkdir -p /usr/lib/nginx
 
 # =======================
+# 编译 Nginx 重载服务工具
+# =======================
+
+COPY reload-server.c /usr/src/
+
+WORKDIR /usr/src/
+
+RUN gcc reload-server.c -o reload-server
+
+# =======================
 # Stage 3: Minimal runtime
 # =======================
 FROM alpine:3.22
@@ -123,6 +133,7 @@ RUN apk add --no-cache \
 COPY --from=builder /etc/nginx /etc/nginx
 COPY --from=builder /usr/lib/nginx /usr/lib/nginx
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=builder /usr/src/reload-server /usr/sbin/reload-server
 
 # 拷贝默认配置
 COPY --from=builder /usr/src/sharky-nginx/html /usr/share/nginx/html
