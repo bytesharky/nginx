@@ -52,5 +52,10 @@ fi
 # 确保日志目录存在
 mkdir -p /var/log/nginx /var/cache/nginx
 
-# 启动 Nginx 前台运行
+# 启动 reload-server 在后台
+RELOAD_PORT=${RELOAD_PORT:-8080}
+RELOAD_PATH=${RELOAD_PATH:-/reload}
+/usr/sbin/reload-server &
+
+# 启动 nginx 前台
 exec /usr/sbin/nginx -g "daemon off;"
