@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <sys/wait.h>
 
 #define BUFFER_SIZE 4096
 
@@ -57,7 +58,12 @@ int main() {
         if (n > 0) {
             buffer[n] = '\0';
 
-            if (strstr(buffer, RELOAD_PATH) != NULL) {
+            char method[8], path[256], version[16];
+            if (sscanf(buffer, "%7s %255s %15s", method, path, version) != 3) {
+                close(client_fd);
+                continue;
+            }
+            if (strcmp(method, "GET") == 0 && strcmp(path, RELOAD_PATH) == 0) {
                 FILE *fp = popen("nginx -s reload 2>&1", "r");
                 char output[BUFFER_SIZE] = {0};
                 size_t len = 0;
