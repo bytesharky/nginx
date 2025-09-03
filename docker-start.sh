@@ -17,6 +17,7 @@ if [ ! -f "$NGINX_CONF" ]; then
     mkdir -p /etc/nginx/conf.d
     mkdir -p /etc/nginx/sites-enabled
     mkdir -p /etc/nginx/sites-available
+    cp -n /usr/share/nginx/conf/* /etc/nginx/
     cat > "$NGINX_CONF" <<'EOF'
 user nginx;
 worker_processes auto;
@@ -46,7 +47,6 @@ http {
     include /etc/nginx/sites-enabled/*.conf;
 }
 EOF
-cp /usr/share/nginx/conf/mime.types /etc/nginx/
 fi
 
 # 确保日志目录存在
