@@ -28,6 +28,7 @@ WORKDIR /usr/src
 FROM base-builder AS builder
 
 ARG BUILD_DATE
+ARG BRANCH
 
 # =======================
 # clone Nginx
@@ -36,13 +37,14 @@ ARG BUILD_DATE
 RUN echo "Build date: ${BUILD_DATE}" && \
     rm -rf sharky-nginx 2>/dev/null || true
 
-# 指定版本
-# RUN git clone --depth 1 --branch nginx-1.26 https://github.com/bytesharky/nginx sharky-nginx
 # 最新版本
-RUN git clone --depth 1 https://github.com/bytesharky/nginx sharky-nginx
+# RUN git clone --depth 1 https://github.com/bytesharky/nginx sharky-nginx
 
-# 国内可以使用
-# RUN git clone --depth 1 https://gitee.com/bytesharky/nginx sharky-nginx
+# 指定版本
+RUN git clone --depth 1 --branch ${BRANCH} https://github.com/bytesharky/nginx sharky-nginx
+
+# 国内可用源
+# RUN git clone --depth 1 --branch ${BRANCH} https://gitee.com/bytesharky/nginx sharky-nginx
 
 WORKDIR /usr/src/sharky-nginx
 
@@ -118,6 +120,17 @@ FROM alpine:3.22
 
 ARG BUILD_DATE
 LABEL build.date="${BUILD_DATE}"
+
+# 确保 www-data 存在
+RUN set -eux; \
+    if getent passwd www-data >/dev/null; then \
+        deluser www-data; \
+    fi; \
+    if getent group www-data >/dev/null; then \
+        delgroup www-data; \
+    fi; \
+    addgroup -g 33 -S www-data; \
+    adduser -u 33 -S -D -H -s /sbin/nologin -G www-data www-data
 
 # 添加运行时依赖
 RUN apk add --no-cache \
